@@ -1,6 +1,7 @@
-use regex::Regex;
 use std::io;
 use std::io::Read;
+
+use regex::Regex;
 
 fn main() {
     let mut input = String::new();
