@@ -10,7 +10,7 @@ fn main() {
 
     println!("{}", numbers.iter().enumerate().skip(WINDOW).find_map(|(n, &x)| {
         if numbers.iter().enumerate().skip(n - WINDOW).take(WINDOW).any(|(m, &y)| {
-            numbers.iter().skip(m + 1).take(n - m - 1).any(|&z| y != z && y + z == x)
+            numbers[m + 1..n].iter().any(|&z| y != z && y + z == x)
         }) {
             None
         } else {
