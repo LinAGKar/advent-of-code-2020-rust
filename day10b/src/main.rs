@@ -1,4 +1,5 @@
 use std::collections::HashSet;
+use std::collections::VecDeque;
 use std::io;
 use std::io::Read;
 
@@ -11,15 +12,18 @@ fn main() {
     joltages.insert(0);
     joltages.insert(device_joltage);
 
-    let (_, (enabled_states, _)) = (0..=device_joltage).fold(
-        (1u64, (0, 0)),
-        |(last_dis, (last_en, sec_last_en)), x| {
-            (last_en + sec_last_en, (if joltages.contains(&x) {
-                last_dis + last_en
+    let possibilities: VecDeque<u64> = (0..=device_joltage).fold(
+        [0, 0, 1].iter().cloned().collect(),
+        |mut acc, x| {
+            acc.push_front(if joltages.contains(&x) {
+                acc.iter().sum()
             } else {
                 0
-            }, last_en))
+            });
+            acc.truncate(3);
+            acc
         }
     );
-    println!("{}", enabled_states);
+
+    println!("{}", possibilities.front().unwrap());
 }
