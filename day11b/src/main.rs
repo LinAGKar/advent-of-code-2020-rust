@@ -29,18 +29,20 @@ fn main() {
     let mut input = String::new();
     io::stdin().read_to_string(&mut input).unwrap();
 
-    let seats: HashSet<_> = input.lines().zip(0..).flat_map(|(line, y)| line.chars().zip(0..).filter_map(move |(tile, x)| {
-        if tile == 'L' {
-            Some(Pos {x: x, y: y})
-        } else {
-            None
-        }
-    })).collect();
+    let seats: HashSet<_> = input
+        .lines()
+        .zip(0..)
+        .flat_map(|(line, y)| line.chars().zip(0..).filter_map(move |(tile, x)| {
+            if tile == 'L' {
+                Some(Pos {x: x, y: y})
+            } else {
+                None
+            }
+        }))
+        .collect();
 
     let right_edge = seats.iter().map(|pos| pos.x).max().unwrap();
     let bottom_edge = seats.iter().map(|pos| pos.y).max().unwrap();
-
-    let mut filled_seats = HashSet::new();
 
     let adjacent: Vec<_> = (-1..=1)
         .flat_map(|x| (-1..=1)
@@ -49,27 +51,33 @@ fn main() {
         )
         .collect();
 
+    let seats: Vec<(_, Vec<_>)> = seats.iter().map(|&pos| (pos, adjacent.iter().filter_map(|&delta| {
+        (1..).find_map(|n| {
+            let tested_pos = pos + delta * n;
+            if tested_pos.x < 0 || tested_pos.x > right_edge ||
+               tested_pos.y < 0 || tested_pos.y > bottom_edge {
+                Some(None)
+            } else if seats.contains(&tested_pos) {
+                Some(Some(tested_pos))
+            } else {
+                None
+            }
+        }).unwrap()
+    }).collect())).collect();
+
+    let mut filled_seats: Vec<Vec<_>> = input
+        .lines()
+        .map(|line| line.chars().map(|_| false).collect())
+        .collect();
+
     let mut changed = true;
+    let mut to_remove = Vec::with_capacity(seats.len());
+    let mut to_add = Vec::with_capacity(seats.len());
 
     while changed {
-        let mut to_remove = Vec::new();
-        let mut to_add = Vec::new();
-        for &pos in seats.iter() {
-            let adjacent_filled = adjacent.iter().filter(|&&delta| {
-                (1..).find_map(|n| {
-                    let tested_pos = pos + delta * n;
-                    if filled_seats.contains(&tested_pos) {
-                        Some(true)
-                    } else if tested_pos.x < 0 || tested_pos.x > right_edge ||
-                              tested_pos.y < 0 || tested_pos.y > bottom_edge ||
-                              seats.contains(&tested_pos) {
-                        Some(false)
-                    } else {
-                        None
-                    }
-                }).unwrap()
-            }).count();
-            let filled = filled_seats.contains(&pos);
+        for (pos, adjacent) in seats.iter() {
+            let adjacent_filled = adjacent.iter().filter(|&x| filled_seats[x.y as usize][x.x as usize]).count();
+            let filled = filled_seats[pos.y as usize][pos.x as usize];
             if adjacent_filled >= 5 && filled {
                 to_remove.push(pos);
             } else if adjacent_filled == 0 && !filled {
@@ -77,12 +85,15 @@ fn main() {
             }
         }
         changed = to_remove.len() > 0 || to_add.len() > 0;
-        for i in to_remove {
-            filled_seats.remove(&i);
+        for &i in &to_remove {
+            filled_seats[i.y as usize][i.x as usize] = false;
         }
-        for i in to_add {
-            filled_seats.insert(i);
+        for &i in &to_add {
+            filled_seats[i.y as usize][i.x as usize] = true;
         }
+        to_remove.clear();
+        to_add.clear();
     }
-    println!("{}", filled_seats.len());
+
+    println!("{}", filled_seats.iter().map(|x| x.iter().filter(|&&y| y).count()).sum::<usize>());
 }
