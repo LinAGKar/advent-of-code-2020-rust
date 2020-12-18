@@ -55,7 +55,7 @@ fn main() {
                         let tile = &mut tile_lookup[neigh_pos.0][neigh_pos.1][neigh_pos.2];
                         if tile.enabled_check_cycle != cycle {
                             tile.enabled_check_cycle = cycle;
-                            // Count is from a prevous cycle, and need to be reset
+                            // Count is from a previous cycle, and need to be reset
                             tile.enabled_neighbors = 0;
                             // Pushing position when resetting makes sure we don't add duplicates
                             touched_tiles.push(neigh_pos);
@@ -64,7 +64,7 @@ fn main() {
                         if neigh_pos != tile_pos {
                             tile.enabled_neighbors += if neigh_pos.2 == 0 && tile_pos.2 == 1 {
                                 // If the current tile is above z-axis origin, and we are incrementing a tile at origin,
-                                // we should inrement it twice, since it should also be incremented by our mirror below
+                                // we should increment it twice, since it should also be incremented by our mirror below
                                 // origin, which is not included in the simulation.
                                 2
                             } else {

@@ -15,7 +15,7 @@ fn main() {
     let lines = input.lines().count();
     let columns = input.lines().next().unwrap().chars().count();
 
-    // 5D Grid for looking up whether a tile is enabled. The grid can can grow one position per cycle, so keep headroom
+    // 4D Grid for looking up whether a tile is enabled. The grid can can grow one position per cycle, so keep headroom
     // in each direction equal to the number of cycles.
     let mut tile_lookup: Vec<Vec<Vec<Vec<_>>>> = (0..CYCLES * 2 + columns).map(|_| {
         (0..CYCLES * 2 + lines).map(|_| {
@@ -61,7 +61,7 @@ fn main() {
                             let tile = &mut tile_lookup[neigh_pos.0][neigh_pos.1][neigh_pos.2][neigh_pos.3];
                             if tile.enabled_check_cycle != cycle {
                                 tile.enabled_check_cycle = cycle;
-                                // Count is from a prevous cycle, and need to be reset
+                                // Count is from a previous cycle, and need to be reset
                                 tile.enabled_neighbors = 0;
                                 // Pushing position when resetting makes sure we don't add duplicates
                                 touched_tiles.push(neigh_pos);
@@ -71,7 +71,7 @@ fn main() {
                                 let mut increment = 1;
                                 if neigh_pos.2 == 0 && tile_pos.2 == 1 {
                                     // If the current tile is above z-axis origin, and we are incrementing a tile at origin,
-                                    // we should inrement it twice, since it should also be incremented by our mirror below
+                                    // we should increment it twice, since it should also be incremented by our mirror below
                                     // origin, which is not included in the simulation.
                                     increment *= 2;
                                 }
